@@ -21,6 +21,8 @@ public class PokerClient {
     int numPlayers;
     String[] playerNames;
 
+    int chips;
+
     //Socket related variables
     Socket clientSocket;
     InputStream in;
@@ -96,5 +98,20 @@ public class PokerClient {
         }
         return playerNames;
     }
+    public void recieveChips()throws IOException{
+        int length = 4;
+        byte[] numBytes = new byte[4];
+        while (length > 0) {
+            length -= in.read(numBytes, numBytes.length - length, length);
+        }
 
+        System.out.println(Integer.toBinaryString(numBytes[0] & 0xFF) + "\n" + Integer.toBinaryString(numBytes[1] & 0xFF)
+            + "\n" + Integer.toBinaryString(numBytes[2] & 0xFF) + "\n" + Integer.toBinaryString(numBytes[3] & 0xFF));
+
+        chips += (numBytes[0] & 0xFF) << 24;
+        chips += (numBytes[1] & 0xFF) << 16;
+        chips += (numBytes[2] & 0xFF) << 8;
+        chips += (numBytes[3] & 0xFF);
+        System.out.println(chips);
+    }
 }

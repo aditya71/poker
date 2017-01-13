@@ -57,6 +57,20 @@ public class ServerMain {
         }
         //Sends all of the player names to all of the connected clients.
         sendNames(numPlayers, client);
+        for(int i = 0; i < numPlayers; i++){
+            sendChips(100000, client[i]);
+
+        }
+        updateClientsChips(client);
+
+    }
+
+    private static void updateClientsChips(Client[] client)throws IOException{
+        for(int i = 0; i < numPlayers; i++){
+            for(int j = 0; j < numPlayers; j++){
+                sendChips(client[j].chips,client[i]);
+            }
+        }
     }
 
     //When called, it sends all of the player names to all of the connected clients.
@@ -79,6 +93,16 @@ public class ServerMain {
             }
         }
 
+    }
+    private static void sendChips(int chips,Client c) throws IOException{
+        c.chips += chips;
+        byte[] chipsBytes = new byte[4];
+        chipsBytes[0] = (byte)(chips >> 24);
+        chipsBytes[1] = (byte)(chips >> 16);
+        chipsBytes[2] = (byte)(chips >> 8);
+        chipsBytes[3] = (byte)(chips);
+        c.out.write(chipsBytes);
+        c.out.flush();
     }
 
 

@@ -53,6 +53,11 @@ public class ClientTest {
         printArray(two.readNames());
         printArray(three.readNames());
         printArray(four.readNames());
+
+        one.recieveChips();
+        two.recieveChips();
+        three.recieveChips();
+        four.recieveChips();
     }
 
     public static void printArray(String[] a){

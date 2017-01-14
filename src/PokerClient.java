@@ -9,7 +9,7 @@ import java.util.Scanner;
 /**
  * Created by Aditya and Sai on 1/10/2017.
  */
-public class PokerClient {
+public class PokerClient implements Runnable {
 
     //Creating global variables
 
@@ -23,6 +23,7 @@ public class PokerClient {
     String[] playerNames;
     int[] playerChips;
     int chips;
+    String status = "";
 
     //Socket related variables
     Socket clientSocket;
@@ -35,6 +36,9 @@ public class PokerClient {
         this.hostname = hostname;
         connect();
         sendName();
+        readNames();
+        chips = receiveChips();
+        updateAllChips();
     }
 
     //Constructor for PokerClient that connects to server and sends name to server.
@@ -43,7 +47,9 @@ public class PokerClient {
         this.hostname = requestHostname();
         connect();
         sendName();
-
+        readNames();
+        chips = receiveChips();
+        updateAllChips();
     }
 
     //Asks the client for their name.
@@ -94,7 +100,6 @@ public class PokerClient {
             }
             playerNames[i] = new String(nameBytes, Charset.forName("US-ASCII"));
 
-            System.out.println(playerNames[i]);
 
         }
         return playerNames;
@@ -118,7 +123,10 @@ public class PokerClient {
             playerChips[i] = receiveChips();
         }
     }
-    public void setChips(int chips){
-        this.chips = chips;
+
+    @Override
+    public void run() {
+
     }
+
 }

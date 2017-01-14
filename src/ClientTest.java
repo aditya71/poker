@@ -44,25 +44,36 @@ public class ClientTest {
     }
      */
     public static void main(String[] args) throws IOException{
-        PokerClient one = new PokerClient("bob", "localhost");
-        PokerClient two = new PokerClient("sally", "localhost");
-        PokerClient three = new PokerClient("rodger", "localhost");
-        PokerClient four = new PokerClient("california", "localhost");
+        PokerClient one = new PokerClient("bob", "192.168.0.100");
+        PokerClient two = new PokerClient("sally", "192.168.0.100");
+        PokerClient three = new PokerClient("rodger", "192.168.0.100");
+        PokerClient four = new PokerClient("california", "192.168.0.100");
 
-        printArray(one.readNames());
-        printArray(two.readNames());
-        printArray(three.readNames());
-        printArray(four.readNames());
+        one.chips = one.receiveChips();
+        two.chips = two.receiveChips();
+        three.chips = three.receiveChips();
+        four.chips = four.receiveChips();
 
-        one.recieveChips();
-        two.recieveChips();
-        three.recieveChips();
-        four.recieveChips();
+        System.out.println(one.chips);
+        System.out.println(two.chips);
+        System.out.println(three.chips);
+        System.out.println(four.chips);
+
+        one.updateAllChips();
+        two.updateAllChips();
+        three.updateAllChips();
+        four.updateAllChips();
+
+        System.out.println(one.name); printArray(one.playerChips);
+        System.out.println(two.name); printArray(two.playerChips);
+        System.out.println(three.name); printArray(three.playerChips);
+        System.out.println(four.name); printArray(four.playerChips);
+
     }
 
-    public static void printArray(String[] a){
-        for(String s: a){
-           // System.out.println(s);
+    public static void printArray(int[] a){
+        for(int s: a){
+            System.out.println(s);
         }
     }
 }

@@ -20,7 +20,7 @@ public class PokerClient {
     String hostname;
     int numPlayers;
     String[] playerNames;
-
+    int[] playerChips;
     int chips;
 
     //Socket related variables
@@ -34,7 +34,6 @@ public class PokerClient {
         this.hostname = hostname;
         connect();
         sendName();
-
     }
 
     //Constructor for PokerClient that connects to server and sends name to server.
@@ -43,6 +42,7 @@ public class PokerClient {
         this.hostname = requestHostname();
         connect();
         sendName();
+
     }
 
     //Asks the client for their name.
@@ -98,20 +98,25 @@ public class PokerClient {
         }
         return playerNames;
     }
-    public void recieveChips()throws IOException{
+    public int receiveChips() throws IOException{
         int length = 4;
         byte[] numBytes = new byte[4];
         while (length > 0) {
             length -= in.read(numBytes, numBytes.length - length, length);
         }
 
-        System.out.println(Integer.toBinaryString(numBytes[0] & 0xFF) + "\n" + Integer.toBinaryString(numBytes[1] & 0xFF)
-            + "\n" + Integer.toBinaryString(numBytes[2] & 0xFF) + "\n" + Integer.toBinaryString(numBytes[3] & 0xFF));
+        int tempChips = 0;
+        tempChips += (numBytes[0] & 0xFF) << 24;
+        tempChips += (numBytes[1] & 0xFF) << 16;
+        tempChips += (numBytes[2] & 0xFF) << 8;
+        tempChips += (numBytes[3] & 0xFF);
+        return tempChips;
+    }
+    public void updateAllChips() throws IOException{
+        playerChips = new int[numPlayers];
 
-        chips += (numBytes[0] & 0xFF) << 24;
-        chips += (numBytes[1] & 0xFF) << 16;
-        chips += (numBytes[2] & 0xFF) << 8;
-        chips += (numBytes[3] & 0xFF);
-        System.out.println(chips);
+        for(int i = 0; i < numPlayers; i++){
+            playerChips[i] = receiveChips();
+        }
     }
 }

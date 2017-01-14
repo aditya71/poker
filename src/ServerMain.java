@@ -59,10 +59,10 @@ public class ServerMain {
         sendNames(numPlayers, client);
         for(int i = 0; i < numPlayers; i++){
             sendChips(100000, client[i]);
-
+            client[i].chips = 100000;
         }
         updateClientsChips(client);
-        while(true){
+        /*while(true){
             Deck deck = new Deck();
             for(int i = 0; i < numPlayers; i++){
                 client[i].cards[0] = deck.pop();
@@ -71,7 +71,7 @@ public class ServerMain {
                 client[i].out.write(temp.getBytes(Charset.forName("US-ASCII")));
                 client[i].out.flush();
             }
-        }
+        }*/
 
     }
 
@@ -107,13 +107,10 @@ public class ServerMain {
 
     }
     private static void sendChips(int chips,Client c) throws IOException{
-        c.chips += chips;
-        byte[] chipsBytes = new byte[4];
-        chipsBytes[0] = (byte)(chips >> 24);
-        chipsBytes[1] = (byte)(chips >> 16);
-        chipsBytes[2] = (byte)(chips >> 8);
-        chipsBytes[3] = (byte)(chips);
-        c.out.write(chipsBytes);
+
+        ByteBuffer chipBytes = ByteBuffer.allocate(4);
+        chipBytes.putInt(chips);
+        c.out.write(chipBytes.array());
         c.out.flush();
     }
 

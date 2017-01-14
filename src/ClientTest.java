@@ -44,12 +44,17 @@ public class ClientTest {
     }
      */
     public static void main(String[] args) throws IOException{
-        PokerClient one = new PokerClient("bob", "192.168.0.100");
-        PokerClient two = new PokerClient("sally", "192.168.0.100");
-        PokerClient three = new PokerClient("rodger", "192.168.0.100");
-        PokerClient four = new PokerClient("california", "192.168.0.100");
+        PokerClient one = new PokerClient("bob", "localhost");
+        PokerClient two = new PokerClient("sally", "localhost");
+        PokerClient three = new PokerClient("rodger", "localhost");
+        PokerClient four = new PokerClient("california", "localhost");
 
-        one.chips = one.receiveChips();
+        one.readNames();
+        two.readNames();
+        three.readNames();
+        four.readNames();
+
+        one.setChips(one.receiveChips());
         two.chips = two.receiveChips();
         three.chips = three.receiveChips();
         four.chips = four.receiveChips();

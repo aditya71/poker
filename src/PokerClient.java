@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Scanner;
 
@@ -105,12 +106,10 @@ public class PokerClient {
             length -= in.read(numBytes, numBytes.length - length, length);
         }
 
-        int tempChips = 0;
-        tempChips += (numBytes[0] & 0xFF) << 24;
-        tempChips += (numBytes[1] & 0xFF) << 16;
-        tempChips += (numBytes[2] & 0xFF) << 8;
-        tempChips += (numBytes[3] & 0xFF);
-        return tempChips;
+        ByteBuffer byteBuffer = ByteBuffer.wrap(numBytes);
+        int temp = byteBuffer.getInt();
+        return temp;
+
     }
     public void updateAllChips() throws IOException{
         playerChips = new int[numPlayers];
@@ -118,5 +117,8 @@ public class PokerClient {
         for(int i = 0; i < numPlayers; i++){
             playerChips[i] = receiveChips();
         }
+    }
+    public void setChips(int chips){
+        this.chips = chips;
     }
 }

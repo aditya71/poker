@@ -62,8 +62,20 @@ public class ServerMain {
 
         }
         updateClientsChips(client);
+        while(true){
+            Deck deck = new Deck();
+            for(int i = 0; i < numPlayers; i++){
+                client[i].cards[0] = deck.pop();
+                client[i].cards[1] = deck.pop();
+                String temp = client[i].cards[0].toString() + client[i].cards[1].toString();
+                client[i].out.write(temp.getBytes(Charset.forName("US-ASCII")));
+                client[i].out.flush();
+            }
+        }
 
     }
+
+
 
     private static void updateClientsChips(Client[] client)throws IOException{
         for(int i = 0; i < numPlayers; i++){
@@ -111,7 +123,7 @@ public class ServerMain {
         public Socket socket;
         public InputStream in;
         public OutputStream out;
-
+        Card[] cards = new Card[2];
         public String name;
         public int chips;
 

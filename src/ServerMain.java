@@ -16,6 +16,9 @@ public class ServerMain {
     //Creating global variables
     static ServerSocket ss;
     static byte numPlayers; // unused
+    public static final int bigBlind = 5000;
+    public static final int littleBlind = bigBlind/2;
+
 
     public static void main(String [] args) throws IOException {
         //Creating variables for the main class
@@ -62,7 +65,14 @@ public class ServerMain {
             client[i].chips = 100000;
         }
         updateClientsChips(client);
-        /*while(true){
+        int countingBig = 0;
+        while(true){
+            int pot = 0;
+
+
+
+
+
             Deck deck = new Deck();
             for(int i = 0; i < numPlayers; i++){
                 client[i].cards[0] = deck.pop();
@@ -71,7 +81,29 @@ public class ServerMain {
                 client[i].out.write(temp.getBytes(Charset.forName("US-ASCII")));
                 client[i].out.flush();
             }
-        }*/
+
+            pot +=  bigBlind + littleBlind;
+
+            client[countingBig].chips -= littleBlind;
+            if(countingBig == 3){
+                countingBig = 0;
+            }
+            client[countingBig].chips -= bigBlind;
+            if(countingBig == 3){
+                countingBig = 0;
+            }
+            while(true){
+
+
+
+                break;
+            }
+
+
+
+
+            break;
+        }
 
     }
 

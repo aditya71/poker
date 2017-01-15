@@ -16,6 +16,9 @@ public class ServerMain {
     //Creating global variables
     static ServerSocket ss;
     static byte numPlayers; // unused
+    static Client[] clients;
+
+    static Deck deck;
     public static final int bigBlind = 5000;
     public static final int littleBlind = bigBlind/2;
 
@@ -23,72 +26,40 @@ public class ServerMain {
     public static void main(String [] args) throws IOException {
         //Creating variables for the main class
         ss = new ServerSocket(24999);
-        Client[] client = new Client[9];
+        clients = new Client[9];
         numPlayers = 0; //unused
-
-
         new Thread(new PokerConsole()).start();
-
-        //Connects to each PokerClient and gets their name
-
-        for(int i = 0; i < client.length; i++){
-            try {
-                client[i] =  new Client(ss.accept());
-                int length = client[i].in.read();
-                byte[] nameBytes = new byte[length];
-                while(length > 0){
-                    length -= client[i].in.read(nameBytes, nameBytes.length - length, length);
-                }
-
-                client[i].name = new String(nameBytes, Charset.forName("US-ASCII"));
-                System.out.println(client[i].name);
-
-            //A SocketException is thrown when the server stops accepting connections
-            //In this case, it is thrown when the user types "start" into the console
-            } catch(SocketException e){
-
-                break;
-            }
-        }
+        acceptPlayers();
 
         //Counts the total number of connected clients.
-        for(int i = 0; i < client.length; i++){
-            if(client[i] != null)
-                numPlayers++; // unused
-            else
+        for(int i = 0; i < clients.length; i++) {
+            if(clients[i] == null) {
+                numPlayers++;
+            } else {
                 break;
-        }
-        //Sends all of the player names to all of the connected clients.
-        sendNames(numPlayers, client);
-        for(int i = 0; i < numPlayers; i++){
-            sendChips(100000, client[i]);
-            client[i].chips = 100000;
-        }
-        updateClientsChips(client);
-        int countingBig = 0;
-        while(true){
-            int pot = 0;
-
-
-
-
-
-            Deck deck = new Deck();
-            for(int i = 0; i < numPlayers; i++){
-                client[i].cards[0] = deck.pop();
-                client[i].cards[1] = deck.pop();
-                String temp = client[i].cards[0].toString() + client[i].cards[1].toString();
-                client[i].out.write(temp.getBytes(Charset.forName("US-ASCII")));
-                client[i].out.flush();
             }
+        }
+
+        //Sends all of the player names to all of the connected clients.
+        sendNames(numPlayers, clients);
+        sendChips(100000);
+        updateClientsChips(clients);
+
+        int countingBig = 0; //wtf does this variable name even mean
+
+        while(true) {
+            int pot = 0;
+            deck = new Deck();
+
+            dealCards();
 
             pot +=  bigBlind + littleBlind;
 
-            client[countingBig].chips -= littleBlind;
+            clients[countingBig].chips -= littleBlind;
             if(countingBig == 3){
                 countingBig = 0;
             }
-            client[countingBig].chips -= bigBlind;
+            clients[countingBig].chips -= bigBlind;
             if(countingBig == 3){
                 countingBig = 0;
             }
@@ -109,10 +80,35 @@ public class ServerMain {
 
 
 
+    private static void acceptPlayers() throws SocketException, IOException {
+        for(int i = 0; i < clients.length; i++) {
+            clients[i] = new Client(ss.accept());
+            int length = clients[i].in.read();
+            byte[] nameBytes = new byte[length];
+            while (length > 0) {
+                length -= clients[i].in.read(nameBytes, nameBytes.length - length, length);
+            }
+
+            clients[i].name = new String(nameBytes, Charset.forName("US-ASCII"));
+            System.out.println(clients[i].name);
+        }
+    }
+
     private static void updateClientsChips(Client[] client)throws IOException{
-        for(int i = 0; i < numPlayers; i++){
-            for(int j = 0; j < numPlayers; j++){
-                sendChips(client[j].chips,client[i]);
+        for(int i = 0; i < numPlayers; i++) {
+            for(int j = 0; j < numPlayers; j++) {
+                sendChips(client[j].chips, client[i]);
+            }
+        }
+    }
+
+    private static void sendChips(int chips, Client... clients) throws IOException{
+        for(Client c : clients) {
+            if(c != null) {
+                ByteBuffer chipBytes = ByteBuffer.allocate(4);
+                chipBytes.putInt(chips);
+                c.out.write(chipBytes.array());
+                c.out.flush();
             }
         }
     }
@@ -136,14 +132,20 @@ public class ServerMain {
 
             }
         }
-
     }
-    private static void sendChips(int chips,Client c) throws IOException{
 
-        ByteBuffer chipBytes = ByteBuffer.allocate(4);
-        chipBytes.putInt(chips);
-        c.out.write(chipBytes.array());
-        c.out.flush();
+    private static void dealCards() throws IOException {
+        for(int i = 0; i < numPlayers; i++) {
+            Card card1 = deck.pop();
+            Card card2 = deck.pop();
+
+            clients[i].cards = new Card[] {card1, card2};
+            byte[] cardsStringBytes = (card1.toString() + card2.toString()).getBytes(Charset.forName("US-ASCII"));
+
+            //Write byte array length, then the byte array itself
+            clients[i].out.write((byte)cardsStringBytes.length);
+            clients[i].out.write(cardsStringBytes);
+        }
     }
 
 
